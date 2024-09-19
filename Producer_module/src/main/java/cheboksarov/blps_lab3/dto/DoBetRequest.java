@@ -9,6 +9,6 @@ import lombok.Data;
 public class DoBetRequest {
     Long matchId;
     String event;
-    Integer bet;
+    Double bet;
     Long credentialId;
 }

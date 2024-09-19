@@ -21,6 +21,8 @@ public class Bet {
     @JoinColumn(name = "fk_coeff_id", referencedColumnName = "coeff_id")
     private Coefficient coefficient;
     private BetEvent betEvent;
+    private BetStatus betStatus;
+    private Double amount;
 
     public enum BetEvent{
         HostsWins,
@@ -28,5 +30,11 @@ public class Bet {
         TotalOne,
         TotalTwo,
         TotalThree
+    }
+    public enum BetStatus{
+        Processing,
+        Accepted,
+        Win,
+        Lose
     }
 }

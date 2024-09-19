@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface BetRepository extends JpaRepository<Bet, Long> {
     List<Bet> findAllBySiteUser(SiteUser siteUser);
+
+    List<Bet> findAllByBetStatus(Bet.BetStatus betStatus);
 }

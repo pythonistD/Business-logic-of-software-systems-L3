@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.kafka.annotation.KafkaListener;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -97,11 +98,35 @@ public class BetServiceImplement implements BetService {
         Coefficient coefficient = match.getCoefficient();
         //errorSimulation();
         Bet bet = Bet.builder().siteUser(user).betEvent(event)
-                .coefficient(coefficient).build();
+                .coefficient(coefficient).betStatus(Bet.BetStatus.Accepted).amount(doBetRequest.getBet()).build();
         betRepository.save(bet);
         return new ResponseEntity<>("Your bet is accepted!", HttpStatus.OK);
 
     }
+
+    @Override
+    public List<Bet> findAllActiveBets() {
+        return betRepository.findAllByBetStatus(Bet.BetStatus.Accepted);
+    }
+
+    @Override
+    public boolean isBetCompleted(Bet bet) {
+        Match match = findMatchBetByCoeff(bet);
+        return LocalDateTime.now().isAfter(match.getTime_end());
+    }
+
+    @Override
+    public double betResult(Bet bet) {
+        Bet.BetEvent betEvent = bet.getBetEvent();
+        Match match = findMatchBetByCoeff(bet);
+        return betEvent.calcIncome(match.getHostsStat(), match.getGuestsStat(), bet, bet.getCoefficient());
+    }
+
+    public Match findMatchBetByCoeff(Bet bet){
+        Coefficient coefficient = bet.getCoefficient();
+        return matchService.findMatchByCoefficient(coefficient);
+    }
+
 
     public void errorSimulation(){
         throw new RuntimeException("Simulated error");

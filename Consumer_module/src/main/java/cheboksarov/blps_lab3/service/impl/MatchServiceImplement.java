@@ -1,6 +1,7 @@
 package cheboksarov.blps_lab3.service.impl;
 
 import cheboksarov.blps_lab3.exceptions.MatchNotFoundException;
+import cheboksarov.blps_lab3.model.Coefficient;
 import cheboksarov.blps_lab3.model.Match;
 import cheboksarov.blps_lab3.repository.MatchRepository;
 import cheboksarov.blps_lab3.service.CoefficientService;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +41,10 @@ public class MatchServiceImplement implements MatchService {
             match.setGuestsStat(statisticsService.createDefaultStatistics());
             match.setHostsStat(statisticsService.createDefaultStatistics());
         }
+        if((match.getTime_start() == null) && (match.getTime_end() == null)){
+            match.setTime_start(LocalDateTime.now());
+            match.setTime_end(match.getTime_start().plusMinutes(90));
+        }
         return matchRepository.save(match);
     }
 
@@ -63,6 +69,11 @@ public class MatchServiceImplement implements MatchService {
     @Override
     public void deleteMatch(Long match_id) {
         matchRepository.deleteById(match_id);
+    }
+
+    @Override
+    public Match findMatchByCoefficient(Coefficient coefficient) {
+        return matchRepository.findMatchByCoefficient(coefficient);
     }
 
 }

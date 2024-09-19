@@ -10,4 +10,10 @@ public interface BetService {
     List<Bet> findAllMyBets() throws Exception;
 
     ResponseEntity<?> doBet(DoBetRequest doBetDto) throws Exception;
+
+    List<Bet> findAllActiveBets();
+
+    boolean isBetCompleted(Bet bet);
+
+    double betResult(Bet bet);
 }

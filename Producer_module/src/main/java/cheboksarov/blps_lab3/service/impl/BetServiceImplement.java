@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -61,6 +62,10 @@ public class BetServiceImplement implements BetService {
         SiteUser user = userService.findByCredentialId(credential);
         if (user.getBalance() < doBetDto.getBet()){
             throw new Exception("Not enought money in your balance ((");
+        }
+        Match match = matchService.findById(doBetDto.getMatchId());
+        if(LocalDateTime.now().isAfter(match.getTime_end())){
+            throw new Exception("You cant do bet for finished match!");
         }
         try {
             kafkaTemplate.send("do_bet_request_topic", DoBetRequest.builder().matchId(doBetDto.getMatchId())

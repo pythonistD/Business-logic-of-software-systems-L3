@@ -6,4 +6,6 @@ public interface CredentialService {
     Credential registerNewUser(Credential credential);
 
     Credential findByUserName(String username) throws Exception;
+
+    // Credential findByCredentialId()
 }
