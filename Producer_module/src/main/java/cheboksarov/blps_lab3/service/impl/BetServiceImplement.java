@@ -1,6 +1,7 @@
 package cheboksarov.blps_lab3.service.impl;
 
 import cheboksarov.blps_lab3.dto.DoBetDto;
+import cheboksarov.blps_lab3.dto.DoBetRequest;
 import cheboksarov.blps_lab3.model.*;
 import cheboksarov.blps_lab3.repository.BetRepository;
 import cheboksarov.blps_lab3.service.*;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +29,7 @@ public class BetServiceImplement implements BetService {
     private SiteUserService userService;
     private MatchService matchService;
     private CredentialService credentialService;
+    private KafkaTemplate<String, DoBetRequest> kafkaTemplate;
     @Override
     public List<Bet> findAllMyBets() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -52,7 +55,6 @@ public class BetServiceImplement implements BetService {
         {
             throw new Exception("Bad request data");
         }
-        Match match = matchService.findById(doBetDto.getMatchId());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String name = auth.getName();
         Credential credential = credentialService.findByUserName(name);
@@ -60,15 +62,15 @@ public class BetServiceImplement implements BetService {
         if (user.getBalance() < doBetDto.getBet()){
             throw new Exception("Not enought money in your balance ((");
         }
-        user.setBalance(user.getBalance()- doBetDto.getBet());
-        Bet.BetEvent event = BetUtils.validateEventString(doBetDto.getEvent());
-        Coefficient coefficient = match.getCoefficient();
-        //errorSimulation();
-        Bet bet = Bet.builder().siteUser(user).betEvent(event)
-                .coefficient(coefficient).build();
-        betRepository.save(bet);
-        return new ResponseEntity<>("Your bet is accepted!", HttpStatus.OK);
-
+        try {
+            kafkaTemplate.send("do_bet_request_topic", DoBetRequest.builder().matchId(doBetDto.getMatchId())
+                    .bet(doBetDto.getBet())
+                    .event(doBetDto.getEvent())
+                    .credentialId(credential.getCredentialId()).build());
+            return new ResponseEntity<>("Your bet is accepted!", HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     public void errorSimulation(){

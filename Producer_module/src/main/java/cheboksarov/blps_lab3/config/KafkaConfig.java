@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Configuration;
 public class KafkaConfig {
 
     @Bean
-    public NewTopic newTopics(){
+    public NewTopic doBetRequestTopic(){
         return new NewTopic(
-                "test_kafka_req",
+                "do_bet_request_topic",
                 1,
                 (short) 1
         );
