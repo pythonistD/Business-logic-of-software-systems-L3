@@ -119,7 +119,7 @@ public class BetServiceImplement implements BetService {
     public double betResult(Bet bet) {
         Bet.BetEvent betEvent = bet.getBetEvent();
         Match match = findMatchBetByCoeff(bet);
-        return betEvent.calcIncome(match.getHostsStat(), match.getGuestsStat(), bet, bet.getCoefficient());
+        return Math.round(betEvent.calcIncome(match.getHostsStat(), match.getGuestsStat(), bet, bet.getCoefficient()) * 100.0)/100.0;
     }
 
     public Match findMatchBetByCoeff(Bet bet){

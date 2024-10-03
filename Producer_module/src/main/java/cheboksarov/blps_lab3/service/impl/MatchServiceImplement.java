@@ -1,6 +1,7 @@
 package cheboksarov.blps_lab3.service.impl;
 
 import cheboksarov.blps_lab3.exceptions.MatchNotFoundException;
+import cheboksarov.blps_lab3.model.Coefficient;
 import cheboksarov.blps_lab3.model.Match;
 import cheboksarov.blps_lab3.repository.MatchRepository;
 import cheboksarov.blps_lab3.service.CoefficientService;
@@ -65,4 +66,8 @@ public class MatchServiceImplement implements MatchService {
         matchRepository.deleteById(match_id);
     }
 
+    @Override
+    public Match findMatchByCoefficient(Coefficient coefficient) {
+        return matchRepository.findMatchByCoefficient(coefficient);
+    }
 }

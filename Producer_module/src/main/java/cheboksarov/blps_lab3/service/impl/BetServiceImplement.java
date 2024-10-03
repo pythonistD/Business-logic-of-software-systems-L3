@@ -2,6 +2,7 @@ package cheboksarov.blps_lab3.service.impl;
 
 import cheboksarov.blps_lab3.dto.DoBetDto;
 import cheboksarov.blps_lab3.dto.DoBetRequest;
+import cheboksarov.blps_lab3.dto.HumanReadableBetDto;
 import cheboksarov.blps_lab3.model.*;
 import cheboksarov.blps_lab3.repository.BetRepository;
 import cheboksarov.blps_lab3.service.*;
@@ -19,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -32,7 +35,7 @@ public class BetServiceImplement implements BetService {
     private CredentialService credentialService;
     private KafkaTemplate<String, DoBetRequest> kafkaTemplate;
     @Override
-    public List<Bet> findAllMyBets() throws Exception {
+    public List<HumanReadableBetDto> findAllMyBets() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails;
         if (auth.isAuthenticated()){
@@ -44,7 +47,23 @@ public class BetServiceImplement implements BetService {
         Credential credential = credentialService.findByUserName(userDetails.getUsername());
         SiteUser siteUser = userService.findByCredentialId(credential);
         //SiteUser user = userService.findUserById(userId);
-        return betRepository.findAllBySiteUser(siteUser);
+        List<Bet> bets = betRepository.findAllBySiteUser(siteUser);
+        return bets.stream().map(this::humanReadableBet).collect(Collectors.toList());
+    }
+
+    private HumanReadableBetDto humanReadableBet(Bet bet){
+        Coefficient coefficient = bet.getCoefficient();
+        Match match = matchService.findMatchByCoefficient(coefficient);
+        HashMap<String, String> teamsOfMatch = new HashMap<>();
+        teamsOfMatch.put("hosts", match.getHosts());
+        teamsOfMatch.put("guests", match.getGuests());
+        HashMap<String, Float> coeff = new HashMap<>();
+        coeff.put("coefficient", bet.getBetEvent().getCoeff(coefficient));
+        return HumanReadableBetDto.builder().matchId(match.getMatch_id())
+                .teams(teamsOfMatch)
+                .event(bet.getBetEvent())
+                .coefficient(coeff)
+                .amount(bet.getAmount()).build();
     }
 
     @Override
@@ -81,4 +100,5 @@ public class BetServiceImplement implements BetService {
     public void errorSimulation(){
         throw new RuntimeException("Simulated error");
     }
+
 }

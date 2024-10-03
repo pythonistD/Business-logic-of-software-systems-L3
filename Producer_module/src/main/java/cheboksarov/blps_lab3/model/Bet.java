@@ -25,11 +25,37 @@ public class Bet {
     private Double amount;
 
     public enum BetEvent{
-        HostsWins,
-        GuestsWins,
-        TotalOne,
-        TotalTwo,
-        TotalThree
+        HostsWins{
+            @Override
+            public Float getCoeff(Coefficient coefficient) {
+                return coefficient.getHosts_wins();
+            }
+        },
+        GuestsWins {
+            @Override
+            public Float getCoeff(Coefficient coefficient) {
+                return coefficient.getGuests_wins();
+            }
+        },
+        TotalOne {
+            @Override
+            public Float getCoeff(Coefficient coefficient) {
+                return coefficient.getTotal_one();
+            }
+        },
+        TotalTwo {
+            @Override
+            public Float getCoeff(Coefficient coefficient) {
+                return coefficient.getTotal_two();
+            }
+        },
+        TotalThree{
+            @Override
+            public Float getCoeff(Coefficient coefficient) {
+                return coefficient.getTotal_three();
+            }
+        };
+        public abstract Float getCoeff(Coefficient coefficient);
     }
     public enum BetStatus{
         Processing,
