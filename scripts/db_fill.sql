@@ -20,3 +20,6 @@ insert into match(match_id, status, fk_coeff_id, fk_statistic_guests, fk_statist
 insert into match(match_id, status, fk_coeff_id, fk_statistic_guests, fk_statistic_hosts, guests, hosts, time_start, time_end) values
 (3, 0, 3, 5, 6, 'VT', 'KT', now(), now() + interval '1 minutes'),
 select * from "match";
+insert into match(match_id, status, fk_coeff_id, fk_statistic_guests, fk_statistic_hosts, guests, hosts, time_start, time_end) values
+(4, 0, 4, 7, 8, 'VT', 'KT', now(), now() + interval '5 minutes');
+update "match" set time_end = now() + interval '5 minutes' where match_id = 4;
